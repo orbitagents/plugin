@@ -1,0 +1,14 @@
+{
+  "name": "orbit-marketplace",
+  "description": "Orbit — project tracking built for AI agents. Plugin marketplace for the Orbit Claude Code integration.",
+  "owner": {
+    "name": "Rafael Zago"
+  },
+  "plugins": [
+    {
+      "name": "orbit",
+      "source": "./",
+      "description": "Connect Claude Code to Orbit — the project tracker for AI agents."
+    }
+  ]
+}
