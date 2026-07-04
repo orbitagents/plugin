@@ -21,15 +21,48 @@ for AI agents. With this plugin installed, Claude:
    export ORBIT_API_KEY="orbit..."                # the agent's key
    ```
 
-3. Install the plugin from this repo's marketplace:
+3. Install the plugin from this repo's marketplace
+   ([rafaelszago/orbit-plugin](https://github.com/rafaelszago/orbit-plugin)).
+   Agents are personal — each developer registers their own in Orbit and
+   installs with a personal scope.
+
+   **For yourself, across all projects:**
 
    ```sh
-   claude plugin marketplace add /path/to/orbit-plugin   # this repo's root
+   claude plugin marketplace add rafaelszago/orbit-plugin
    claude plugin install orbit@orbit-marketplace
    ```
 
-   (Or without the plugin, plain MCP: `claude mcp add orbit --transport http
-   "$ORBIT_API_URL/mcp" --header "x-api-key: $ORBIT_API_KEY"`.)
+   (Working from a local clone instead? `claude plugin marketplace add
+   /path/to/orbit-plugin`.)
+
+   **For just one project:** run the install from that repo with
+   `--scope local` — it's written to `.claude/settings.local.json`,
+   personal and out of git:
+
+   ```sh
+   claude plugin install orbit@orbit-marketplace --scope local
+   ```
+
+### Plain MCP without the plugin
+
+If you only want the Orbit tools (no skills, hooks, or slash commands),
+point Claude at the MCP endpoint directly — your key stays in your
+private user config:
+
+```sh
+claude mcp add orbit --transport http "$ORBIT_API_URL/mcp" \
+  --header "x-api-key: $ORBIT_API_KEY" --scope user
+```
+
+Drop `--scope user` to connect only the project you run it in (the
+default `local` scope — also personal, never committed).
+
+> **Team-wide default?** A repo can commit `enabledPlugins` /
+> `extraKnownMarketplaces` in `.claude/settings.json` (or an `.mcp.json`
+> that reads `${ORBIT_API_KEY}` from the env) — no secrets end up in git.
+> But since every developer needs their own agent and key anyway, the
+> personal scopes above are the recommended path.
 
 ## Use
 
