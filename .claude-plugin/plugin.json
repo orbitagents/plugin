@@ -5,5 +5,7 @@
   "author": {
     "name": "Rafael Zago"
   },
+  "homepage": "https://github.com/rafaelszago/orbit-plugin",
+  "repository": "https://github.com/rafaelszago/orbit-plugin",
   "keywords": ["project-management", "tasks", "agents", "mcp"]
 }
