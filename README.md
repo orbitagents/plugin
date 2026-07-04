@@ -80,3 +80,4 @@ default `local` scope — also personal, never committed).
 | `commands/` | `/orbit:tasks`, `/orbit:standup` |
 | `hooks/hooks.json` | SessionStart context injection + Stop-hook session guard |
 | `scripts/` | The hook shell scripts (need `curl` and `python3`) |
+| `scripts/orbit-runner/` | Laptop daemon that turns agent-ready tasks into headless Claude Code sessions ([README](scripts/orbit-runner/README.md)) |
