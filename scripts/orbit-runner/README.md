@@ -21,11 +21,29 @@ completes the task — all visible live on Orbit's Agents page.
 ## Setup
 
 ```sh
-mkdir -p ~/.config/orbit-runner
-cp orbit-runner.example.json ~/.config/orbit-runner/config.json
-$EDITOR ~/.config/orbit-runner/config.json   # map project keys to repos
-python3 orbit-runner.py                      # or pass a config path
+orbit-runner init          # interactive: api key, project→repo map, default model/effort
+orbit-runner start         # daemonize; add --foreground to keep today's inline behavior
+orbit-runner status        # daemon up/down, slots in use, rate-limit pause state
+orbit-runner stop
 ```
+
+`init` writes `~/.config/orbit-runner/config.json`. To set it up by hand
+instead, copy `orbit-runner.example.json` there and fill it in. Every
+subcommand takes `--config <path>` to point at a different file.
+
+If you have not installed the CLI onto your PATH yet (see
+[Install](#install-launchd)), invoke it as `python3 orbit-runner.py <subcommand>`.
+
+### Subcommands
+
+| Command | What it does |
+| --- | --- |
+| `start` | Daemonize (pidfile in `~/.orbit-runner/`). `--foreground`/`-F` runs inline; `--follow`/`-f` streams live logs (implies foreground); `--project`/`-p`, `--model`/`-m`, `--effort`/`-e` as below. |
+| `stop` | SIGTERM the daemon via its pidfile. `--project` targets one instance. |
+| `status` | Daemon up/down, model/effort, slots in use with task ids, and rate-limit pause state. |
+| `logs [task-id] [-f]` | Tail per-session logs. With no task id and `-f`, follows **all** active sessions multiplexed. |
+| `init` | Interactive config bootstrap. |
+| `install` / `uninstall` | launchd agent so the runner starts at login (see below). |
 
 Config fields:
 
@@ -35,12 +53,85 @@ Config fields:
 | `max_slots` | `2` | Max concurrent Claude Code sessions |
 | `rate_limit_pause_minutes` | `30` | Fallback pause when the usage-limit message has no parseable reset time |
 | `task_retry_cooldown_minutes` | `10` | How long to wait before re-dispatching a task whose session exited without completing |
-| `work_dir` | `~/.orbit-runner` | Where worktrees and per-session logs live |
+| `work_dir` | `~/.orbit-runner` | Where worktrees, per-session logs, pidfiles, and state live |
 | `claude_bin` / `claude_args` | `claude` / `[]` | CLI binary and extra args for spawned sessions |
-| `projects` | — | Map of Orbit project key → `{ "repo": path }`. Only mapped projects are polled. |
+| `model` / `effort` | `null` / `null` | Default `--model` / `--effort` for spawned sessions (see below) |
+| `projects` | — | Map of Orbit project key → `{ "repo": path, "repos": {…}, "model": …, "effort": … }`. Only mapped projects are polled. |
 
 `api_url` / `api_key` may also be set in the config; the `ORBIT_API_URL` /
 `ORBIT_API_KEY` environment variables win when both are present.
+
+## Running per project
+
+By default `start` polls every mapped project from one process. Pass
+`--project <KEY>` to scope an instance to a single Orbit project:
+
+```sh
+orbit-runner start --project ORB --model opus --effort high
+orbit-runner start --project WEB --model fable          # a second, independent instance
+orbit-runner status                                     # shows both
+orbit-runner stop --project WEB
+```
+
+Each scoped instance gets its own pidfile (`~/.orbit-runner/runner-<key>.pid`),
+state file, and log, so several can run side by side. `stop` / `status` /
+`logs` accept `--project`; with a single instance running they default to it.
+
+## Model and effort
+
+Spawned sessions run `claude -p …`; the runner injects `--model` and
+`--effort` when set. Resolution order, highest first:
+
+1. `--model` / `--effort` on `orbit-runner start`
+2. per-project `projects.<KEY>.model` / `.effort`
+3. top-level `model` / `effort`
+4. unset → the claude CLI's own default
+
+`status` shows what each instance is running with. (Setting these here is
+preferred over stuffing `--model` into `claude_args`.)
+
+## Live logs
+
+Each session already streams to `~/.orbit-runner/logs/<task>-<ts>.log`.
+
+- `orbit-runner logs ORB-42 -f` follows one session.
+- `orbit-runner logs -f` (no task id) multiplexes **every** active session to
+  the console, each line prefixed with its task id, and picks up new sessions
+  as they spawn.
+- `orbit-runner start --foreground --follow` runs the daemon inline and streams
+  the same multiplexed output as it dispatches.
+
+<a id="install-launchd"></a>
+## Install (start at login)
+
+```sh
+orbit-runner install                 # symlink + launchd agent for all projects
+orbit-runner install --project ORB   # a per-project agent (namespaced label)
+orbit-runner uninstall
+```
+
+`install` symlinks the entrypoint into `~/.local/bin/orbit-runner` and writes a
+launchd agent at `~/Library/LaunchAgents/dev.orbitagents.runner[.<key>].plist`
+(`RunAtLoad` + `KeepAlive`, running `start --foreground`) so the runner comes up
+at login without a terminal. Because `KeepAlive` restarts the job, `stop` only
+pauses an installed runner until launchd relaunches it — use `uninstall` to
+remove it for good. The agent bakes in your current `PATH` and any
+`ORBIT_API_URL` / `ORBIT_API_KEY` from the environment; keep the API key in the
+config file if you would rather not have it in the plist.
+
+## Dispatching a task into a different repo
+
+`projects` maps one project key to one default `repo`, but a task can target a
+different checkout with a `repo:` line anywhere in its description:
+
+```
+repo: plugin
+```
+
+The hint resolves, in order, to: a name under that project's `repos` map, another
+top-level project key, or a filesystem path to a git repo. Anything unrecognized
+falls back to the project's default repo (and is logged). This lets a task in the
+`ORB` project be worked in the plugin checkout instead of the app checkout.
 
 ## How a slot lives and dies
 
