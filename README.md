@@ -71,6 +71,11 @@ default `local` scope — also personal, never committed).
 - Or just say "work on ORB-42" — the `orbit-workflow` skill handles the
   claim → progress → complete lifecycle automatically.
 
+> **Autonomous dispatch** — to have agent-ready tasks picked up and finished
+> with no one at the keyboard, use the separate `orbit-runner` CLI
+> (`bunx orbit-runner init`). It wires this plugin + MCP into Claude Code for
+> you, then turns queued tasks into headless Claude Code sessions.
+
 ## Pieces
 
 | Path | What it does |
@@ -80,4 +85,3 @@ default `local` scope — also personal, never committed).
 | `commands/` | `/orbit:tasks`, `/orbit:standup` |
 | `hooks/hooks.json` | SessionStart context injection + Stop-hook session guard |
 | `scripts/` | The hook shell scripts (need `curl` and `python3`) |
-| `scripts/orbit-runner/` | Laptop daemon that turns agent-ready tasks into headless Claude Code sessions ([README](scripts/orbit-runner/README.md)) |
