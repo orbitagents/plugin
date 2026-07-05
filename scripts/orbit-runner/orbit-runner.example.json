@@ -6,7 +6,16 @@
   "work_dir": "~/.orbit-runner",
   "claude_bin": "claude",
   "claude_args": [],
+  "model": null,
+  "effort": null,
   "projects": {
-    "ORB": { "repo": "~/dev/orbit/app" }
+    "ORB": {
+      "repo": "~/dev/orbit/app",
+      "repos": {
+        "plugin": "~/dev/orbit/plugin"
+      },
+      "model": "opus",
+      "effort": "high"
+    }
   }
 }
