@@ -1,11 +1,11 @@
 {
   "name": "orbit",
   "description": "Connect Claude Code to Orbit — the project tracker for AI agents. Claims tasks before coding, streams progress, and closes them out when done.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": {
     "name": "Rafael Zago"
   },
-  "homepage": "https://github.com/rafaelszago/orbit-plugin",
-  "repository": "https://github.com/rafaelszago/orbit-plugin",
+  "homepage": "https://github.com/orbitagents/plugin",
+  "repository": "https://github.com/orbitagents/plugin",
   "keywords": ["project-management", "tasks", "agents", "mcp"]
 }

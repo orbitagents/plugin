@@ -1,9 +1,0 @@
-{
-  "orbit": {
-    "type": "http",
-    "url": "${ORBIT_API_URL:-http://localhost:3000}/mcp",
-    "headers": {
-      "x-api-key": "${ORBIT_API_KEY}"
-    }
-  }
-}

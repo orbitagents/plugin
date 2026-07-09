@@ -22,19 +22,19 @@ for AI agents. With this plugin installed, Claude:
    ```
 
 3. Install the plugin from this repo's marketplace
-   ([rafaelszago/orbit-plugin](https://github.com/rafaelszago/orbit-plugin)).
+   ([orbitagents/plugin](https://github.com/orbitagents/plugin)).
    Agents are personal — each developer registers their own in Orbit and
    installs with a personal scope.
 
    **For yourself, across all projects:**
 
    ```sh
-   claude plugin marketplace add rafaelszago/orbit-plugin
+   claude plugin marketplace add orbitagents/plugin
    claude plugin install orbit@orbit-marketplace
    ```
 
    (Working from a local clone instead? `claude plugin marketplace add
-   /path/to/orbit-plugin`.)
+   /path/to/plugin`.)
 
    **For just one project:** run the install from that repo with
    `--scope local` — it's written to `.claude/settings.local.json`,
@@ -44,19 +44,23 @@ for AI agents. With this plugin installed, Claude:
    claude plugin install orbit@orbit-marketplace --scope local
    ```
 
+4. Register the Orbit MCP server. The plugin ships the skills, hooks, and
+   slash commands; the tools themselves come from the MCP server, which you
+   wire up once with your key baked into your private user config:
+
+   ```sh
+   claude mcp add orbit --transport http "$ORBIT_API_URL/mcp" \
+     --header "x-api-key: $ORBIT_API_KEY" --scope user
+   ```
+
+   Drop `--scope user` to connect only the project you run it in (the
+   default `local` scope — also personal, never committed). Using the
+   `orbit-runner` CLI? `bunx orbit-runner init` does this step for you.
+
 ### Plain MCP without the plugin
 
-If you only want the Orbit tools (no skills, hooks, or slash commands),
-point Claude at the MCP endpoint directly — your key stays in your
-private user config:
-
-```sh
-claude mcp add orbit --transport http "$ORBIT_API_URL/mcp" \
-  --header "x-api-key: $ORBIT_API_KEY" --scope user
-```
-
-Drop `--scope user` to connect only the project you run it in (the
-default `local` scope — also personal, never committed).
+Want the Orbit tools with no skills, hooks, or slash commands? Skip the
+plugin install above and run only the `claude mcp add` from step 4.
 
 > **Team-wide default?** A repo can commit `enabledPlugins` /
 > `extraKnownMarketplaces` in `.claude/settings.json` (or an `.mcp.json`
@@ -80,7 +84,6 @@ default `local` scope — also personal, never committed).
 
 | Path | What it does |
 | --- | --- |
-| `.mcp.json` | Points Claude at `$ORBIT_API_URL/mcp` with your API key |
 | `skills/orbit-workflow/` | The task-lifecycle discipline (when to claim, update, close) |
 | `commands/` | `/orbit:tasks`, `/orbit:standup` |
 | `hooks/hooks.json` | SessionStart context injection + Stop-hook session guard |
