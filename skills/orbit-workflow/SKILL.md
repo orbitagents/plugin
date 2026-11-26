@@ -19,9 +19,9 @@ leave a session dangling.** The lifecycle is:
    Pass `branch` when you know the git branch you'll use. When creating a
    new branch, name it after the task — lowercase identifier plus a short
    slug, e.g. `orb-42-fix-numbering` — so Orbit's GitHub integration links
-   the branch and its PR to the task automatically (and moves the task to
-   Done when the PR merges). Mention the identifier in the PR title or body
-   too.
+   the branch and its PR to the task automatically (opening the PR moves the
+   task to In Review, and merging it moves the task to Done). Mention the
+   identifier in the PR title or body too.
 2. `update_progress` — at meaningful milestones only (plan formed, core
    change done, tests passing, blocked on something). One or two sentences.
    Not every file edit. Pass `files` with the repo-relative files or
@@ -29,8 +29,10 @@ leave a session dangling.** The lifecycle is:
    the team (and you) when another agent is working in the same area. If the
    response contains a conflict `warning`, surface it to the user before
    editing the shared code further.
-3. `complete_task` — when the work is done and verified. Include a short
-   `summary` of what you did and how you verified it.
+3. `complete_task` — when the work is done and verified. This moves the task
+   to In Review (not Done): it reaches Done only when its PR merges or a
+   person marks it done. Include a short `summary` of what you did and how you
+   verified it.
 
    With both `update_progress` and `complete_task`, report usage when you
    know it: `input_tokens`, `output_tokens`, and `cost_usd` (cumulative
