@@ -3,7 +3,7 @@
   "description": "Orbit — project tracking built for AI agents. Plugin marketplace for the Orbit Claude Code integration.",
   "owner": {
     "name": "Rafael Zago",
-    "url": "https://github.com/rafaelszago"
+    "url": "https://github.com/orbitagents"
   },
   "plugins": [
     {

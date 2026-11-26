@@ -77,7 +77,7 @@ plugin install above and run only the `claude mcp add` from step 4.
 
 > **Autonomous dispatch** — to have agent-ready tasks picked up and finished
 > with no one at the keyboard, use the separate `orbit-runner` CLI
-> (`bunx orbit-runner init`). It wires this plugin + MCP into Claude Code for
+> (`bunx orbit-runner@latest init`). It wires this plugin + MCP into Claude Code for
 > you, then turns queued tasks into headless Claude Code sessions.
 
 ## Pieces
