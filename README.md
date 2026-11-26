@@ -12,16 +12,47 @@ for AI agents. With this plugin installed, Claude:
 
 ## Setup
 
+### Quick setup (recommended)
+
 1. In the Orbit web app go to **Settings → Agents**, create an agent
    (e.g. "Rafael's Claude Code") and copy the API key.
-2. Export the connection in your shell profile:
+2. Run the `orbit-runner` setup wizard:
 
    ```sh
-   export ORBIT_API_URL="http://localhost:3000"   # your Orbit API
-   export ORBIT_API_KEY="orbit..."                # the agent's key
+   bunx orbit-runner@latest init
    ```
 
-3. Install the plugin from this repo's marketplace
+   It verifies your key, maps your Orbit projects to local repos, offers a
+   starter headless allowlist for each repo, then wires up Claude Code for
+   you: it adds this marketplace, installs the plugin, and registers the
+   Orbit MCP server with your key (user scope, or one per repo if you serve
+   several orgs). It ends with a `doctor` check. Pass `--no-plugin` to skip
+   the Claude Code wiring.
+
+3. For the SessionStart and Stop hooks, also export the connection in your
+   shell profile. `init` keeps the key in the runner config, which the hooks
+   don't read, and without `ORBIT_API_URL` they fall back to
+   `http://localhost:3000`:
+
+   ```sh
+   export ORBIT_API_URL="https://api.orbitagents.dev"   # your Orbit API
+   export ORBIT_API_KEY="orbit..."                      # the agent's key
+   ```
+
+### Manual setup
+
+1. Create an agent and copy its key as above, then export the connection in
+   your shell profile:
+
+   ```sh
+   export ORBIT_API_URL="https://api.orbitagents.dev"   # your Orbit API
+   export ORBIT_API_KEY="orbit..."                      # the agent's key
+   ```
+
+   Self-hosting or running Orbit locally? Point `ORBIT_API_URL` at your API
+   instead (local dev defaults to `http://localhost:3100`).
+
+2. Install the plugin from this repo's marketplace
    ([orbitagents/plugin](https://github.com/orbitagents/plugin)).
    Agents are personal — each developer registers their own in Orbit and
    installs with a personal scope.
@@ -44,7 +75,7 @@ for AI agents. With this plugin installed, Claude:
    claude plugin install orbit@orbit-marketplace --scope local
    ```
 
-4. Register the Orbit MCP server. The plugin ships the skills, hooks, and
+3. Register the Orbit MCP server. The plugin ships the skills, hooks, and
    slash commands; the tools themselves come from the MCP server, which you
    wire up once with your key baked into your private user config:
 
@@ -54,13 +85,13 @@ for AI agents. With this plugin installed, Claude:
    ```
 
    Drop `--scope user` to connect only the project you run it in (the
-   default `local` scope — also personal, never committed). Using the
-   `orbit-runner` CLI? `bunx orbit-runner init` does this step for you.
+   default `local` scope — also personal, never committed).
 
 ### Plain MCP without the plugin
 
 Want the Orbit tools with no skills, hooks, or slash commands? Skip the
-plugin install above and run only the `claude mcp add` from step 4.
+plugin install above and run only the `claude mcp add` from step 3 of the
+manual setup.
 
 > **Team-wide default?** A repo can commit `enabledPlugins` /
 > `extraKnownMarketplaces` in `.claude/settings.json` (or an `.mcp.json`
@@ -75,10 +106,9 @@ plugin install above and run only the `claude mcp add` from step 4.
 - Or just say "work on ORB-42" — the `orbit-workflow` skill handles the
   claim → progress → complete lifecycle automatically.
 
-> **Autonomous dispatch** — to have agent-ready tasks picked up and finished
-> with no one at the keyboard, use the separate `orbit-runner` CLI
-> (`bunx orbit-runner@latest init`). It wires this plugin + MCP into Claude Code for
-> you, then turns queued tasks into headless Claude Code sessions.
+> **Autonomous dispatch** — after `bunx orbit-runner@latest init`, run
+> `bunx orbit-runner@latest start` to have agent-ready tasks picked up and
+> finished as headless Claude Code sessions, with no one at the keyboard.
 
 ## Pieces
 
